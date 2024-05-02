@@ -8,6 +8,6 @@ This repo is a santitized copy of the original with commmit history removed. I w
 
 # Building
 
-for macOS run `make`
-for web: run `./webbuild.sh`
-for windows: PRs welcome
+for macOS run `make`  
+for web: run `./webbuild.sh`  
+for windows: PRs welcome  
