@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    
+    <title>ShapeUp</title>
+    
+    <meta name="title" content="ShapeUp">
+    <meta name="viewport" content="width=device-width">
+
+    <!-- Twitter metatags for sharing -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@danielchooper">
+    <meta name="twitter:title" content="ShapeUp 3D">
+    <meta name="twitter:image" content="danielchasehooper.com/images/shapeup.png">
+    <meta name="twitter:url" content="www.danielchasehooper.com">
+    <meta name="twitter:description" content="Create 3D Models out of shapes">
+    
+    <style>
+        * { margin: 0px; padding:0;}
+        canvas.emscripten { 
+            border: 0px none; 
+            background-color: black; 
+            width:100%;
+            height:100%;
+            position:absolute;
+            image-rendering: pixelated;
+            -ms-interpolation-mode: nearest-neighbor; 
+        }
+        *:focus {
+          outline: none;
+      }
+    </style>
+    </head>
+    <body>
+        <canvas class=emscripten id=canvas oncontextmenu=event.preventDefault() tabindex=-1></canvas>
+        <script>
+            if ('ontouchstart' in window) {
+                alert("This page hasn't been designed for touchscreens, and might not work on this device");
+            }
+            var Module = {
+                print: function(text) {
+                    if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+                    console.log(text);
+                },            
+                canvas: (function() {
+                    var canvas = document.getElementById('canvas');
+                    return canvas;
+                })()
+            };
+        </script>
+        {{{ SCRIPT }}}
+    </body>
+</html>
