@@ -1502,7 +1502,7 @@ int main(void){
             static Vector2 mouseDownPosition;
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) mouseDownPosition = GetMousePosition();
 
-            if (fabsf(GetMouseWheelMove()) > 0.01 && !guiSliderDragging && mouseAction == CONTROL_NONE ) {
+            if (fabsf(GetMouseWheelMove()) > 0.01 && mouseAction == CONTROL_NONE ) {
                 Vector2 delta = GetMouseWheelMoveV();
 
                 if (IsKeyDown(KEY_LEFT_ALT)) {
@@ -1516,7 +1516,7 @@ int main(void){
                 #endif
                     UpdateCameraPro(&camera, (Vector3){0, -delta.x/10, 0}, Vector3Zero(), 0);
                 }
-            } else if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && mouseAction == CONTROL_NONE && Vector2Distance(mouseDownPosition, GetMousePosition()) > 1) {
+            } else if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && !guiSliderDragging && mouseAction == CONTROL_NONE && Vector2Distance(mouseDownPosition, GetMousePosition()) > 1) {
                 mouseAction = CONTROL_ROTATE_CAMERA;
             }
 
