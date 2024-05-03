@@ -8,6 +8,7 @@
 
 #define DEMO_VIDEO_FEATURES 0
 
+
 #ifdef PLATFORM_WEB
 #include <emscripten.h>
 #endif
@@ -199,6 +200,7 @@ Vector3 NearestPointOnLine(Vector3 p1,
     float numer,denom;
 
     const float EPS = 0.001;
+    Vector3 zeroV;
 
     p13.x = p1.x - p3.x;
     p13.y = p1.y - p3.y;
@@ -207,12 +209,12 @@ Vector3 NearestPointOnLine(Vector3 p1,
     p43.y = p4.y - p3.y;
     p43.z = p4.z - p3.z;
     if (fabs(p43.x) < EPS && fabs(p43.y) < EPS && fabs(p43.z) < EPS)
-        return(Vector3){};
+        return zeroV;
     p21.x = p2.x - p1.x;
     p21.y = p2.y - p1.y;
     p21.z = p2.z - p1.z;
     if (fabs(p21.x) < EPS && fabs(p21.y) < EPS && fabs(p21.z) < EPS)
-        return(Vector3){};
+        return zeroV;
 
     d1343 = p13.x * p43.x + p13.y * p43.y + p13.z * p43.z;
     d4321 = p43.x * p21.x + p43.y * p21.y + p43.z * p21.z;
@@ -222,7 +224,7 @@ Vector3 NearestPointOnLine(Vector3 p1,
 
     denom = d2121 * d4343 - d4321 * d4321;
     if (fabs(denom) < EPS)
-        return (Vector3){};
+        return zeroV;
     numer = d1343 * d4321 - d1321 * d4343;
 
     mua = numer / denom;
@@ -278,7 +280,7 @@ int GuiFloatValueBox(Rectangle bounds, const char *text, float *value, float min
 
     // Update control
     //--------------------------------------------------------------------
-    if ((state != STATE_DISABLED) && !guiLocked && !guiSliderDragging)
+    if ((state != STATE_DISABLED) && !guiLocked)
     {
         Vector2 mousePoint = GetMousePosition();
 
@@ -586,12 +588,28 @@ void add_shape(void) {
     needs_rebuild = true;
 }
 
+
+
+#ifdef _MSC_VER
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+
+void append_format(char** data, int* size, int* capacity, _Printf_format_string_ const char* format, ...) {
+
+    va_list arg_ptr;
+    va_start(arg_ptr, format);
+    int added = vsnprintf(*data + *size, *capacity - *size, format, arg_ptr);
+
+    *size += MIN(added, *capacity - *size);
+    assert(*size < *capacity);
+
+    va_end(arg_ptr);
+}
+#else
 #define MIN(x,y) ({ \
         __typeof(x) xv = (x);\
         __typeof(y) yv = (y); \
         xv < yv ? xv : yv;\
     })
-
 __attribute__((format(printf, 4, 5)))
 void append_format(char **data, int *size, int *capacity, const char *format, ...) {
 
@@ -604,7 +622,7 @@ void append_format(char **data, int *size, int *capacity, const char *format, ..
 
     va_end(arg_ptr);
 }
-
+#endif
 Vector3 VertexInterp(Vector4 p1,Vector4 p2, float threshold) {
 
    if (fabsf(threshold-p1.w) < 0.00001)
@@ -1245,10 +1263,12 @@ int main(void){
     SetTargetFPS(60);
 
 #   ifndef PLATFORM_WEB
+#   ifndef _MSC_VER
     void swizzleWindow(void);
     swizzleWindow();
     void makeWindowKey(void);
     makeWindowKey();
+#   endif
 #   endif
 
     const int gamepad = 0;
@@ -1494,7 +1514,7 @@ int main(void){
                 #endif
                     UpdateCameraPro(&camera, (Vector3){0, -delta.x/10, 0}, Vector3Zero(), 0);
                 }
-            } else if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && !guiSliderDragging && mouseAction == CONTROL_NONE && Vector2Distance(mouseDownPosition, GetMousePosition()) > 1) {
+            } else if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && mouseAction == CONTROL_NONE && Vector2Distance(mouseDownPosition, GetMousePosition()) > 1) {
                 mouseAction = CONTROL_ROTATE_CAMERA;
             }
 
@@ -1512,12 +1532,15 @@ int main(void){
                 }
             }
 
-            #ifndef PLATFORM_WEB
+            
+            #ifndef PLATFORM_WEB 
+#ifndef _MSC_VER
             extern float magnification;
             if (mouseAction == CONTROL_NONE ) {
                 CameraMoveForward(&camera, 8*magnification, false);
             }
             magnification = 0;
+#endif
             #endif
         }
 
@@ -1892,7 +1915,7 @@ int main(void){
             BeginScissorMode((int)view_area.x, (int)view_area.y, (int)view_area.width, (int)view_area.height); {
                 const int first_visible = (int)floorf(-scroll_offset.y / row_height);
                 const int last_visible = first_visible + (int)ceilf(view_area.height / row_height);
-                for (int i=first_visible; i < MIN(last_visible+1,num_spheres); i++) {
+                for (int i=first_visible; i < __min(last_visible+1,num_spheres); i++) {
                     Sphere *s  = &spheres[i];
                     const char *text = TextFormat("%c Shape %i", s->subtract ? '-' : '+', i+1);
 
