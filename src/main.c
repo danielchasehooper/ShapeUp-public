@@ -7,8 +7,15 @@
 #include "shaders.h"
 
 #define DEMO_VIDEO_FEATURES 0
-
-
+#ifdef _MSC_VER
+#define MIN __min
+#else
+#define MIN(x,y) ({ \
+        __typeof(x) xv = (x);\
+        __typeof(y) yv = (y); \
+        xv < yv ? xv : yv;\
+    })
+#endif
 #ifdef PLATFORM_WEB
 #include <emscripten.h>
 #endif
@@ -200,7 +207,7 @@ Vector3 NearestPointOnLine(Vector3 p1,
     float numer,denom;
 
     const float EPS = 0.001;
-    Vector3 zeroV;
+
 
     p13.x = p1.x - p3.x;
     p13.y = p1.y - p3.y;
@@ -209,12 +216,12 @@ Vector3 NearestPointOnLine(Vector3 p1,
     p43.y = p4.y - p3.y;
     p43.z = p4.z - p3.z;
     if (fabs(p43.x) < EPS && fabs(p43.y) < EPS && fabs(p43.z) < EPS)
-        return zeroV;
+        return (Vector3) { 0 };
     p21.x = p2.x - p1.x;
     p21.y = p2.y - p1.y;
     p21.z = p2.z - p1.z;
     if (fabs(p21.x) < EPS && fabs(p21.y) < EPS && fabs(p21.z) < EPS)
-        return zeroV;
+        return (Vector3) { 0 };
 
     d1343 = p13.x * p43.x + p13.y * p43.y + p13.z * p43.z;
     d4321 = p43.x * p21.x + p43.y * p21.y + p43.z * p21.z;
@@ -224,7 +231,7 @@ Vector3 NearestPointOnLine(Vector3 p1,
 
     denom = d2121 * d4343 - d4321 * d4321;
     if (fabs(denom) < EPS)
-        return zeroV;
+        return (Vector3) { 0 };
     numer = d1343 * d4321 - d1321 * d4343;
 
     mua = numer / denom;
@@ -280,7 +287,7 @@ int GuiFloatValueBox(Rectangle bounds, const char *text, float *value, float min
 
     // Update control
     //--------------------------------------------------------------------
-    if ((state != STATE_DISABLED) && !guiLocked)
+    if ((state != STATE_DISABLED) && !guiLocked && !guiSliderDragging)
     {
         Vector2 mousePoint = GetMousePosition();
 
@@ -591,7 +598,6 @@ void add_shape(void) {
 
 
 #ifdef _MSC_VER
-#define MIN(a, b) (((a) < (b)) ? (a) : (b))
 
 void append_format(char** data, int* size, int* capacity, _Printf_format_string_ const char* format, ...) {
 
@@ -605,11 +611,7 @@ void append_format(char** data, int* size, int* capacity, _Printf_format_string_
     va_end(arg_ptr);
 }
 #else
-#define MIN(x,y) ({ \
-        __typeof(x) xv = (x);\
-        __typeof(y) yv = (y); \
-        xv < yv ? xv : yv;\
-    })
+
 __attribute__((format(printf, 4, 5)))
 void append_format(char **data, int *size, int *capacity, const char *format, ...) {
 
@@ -1500,7 +1502,7 @@ int main(void){
             static Vector2 mouseDownPosition;
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) mouseDownPosition = GetMousePosition();
 
-            if (fabsf(GetMouseWheelMove()) > 0.01 && mouseAction == CONTROL_NONE ) {
+            if (fabsf(GetMouseWheelMove()) > 0.01 && !guiSliderDragging && mouseAction == CONTROL_NONE ) {
                 Vector2 delta = GetMouseWheelMoveV();
 
                 if (IsKeyDown(KEY_LEFT_ALT)) {
@@ -1915,7 +1917,7 @@ int main(void){
             BeginScissorMode((int)view_area.x, (int)view_area.y, (int)view_area.width, (int)view_area.height); {
                 const int first_visible = (int)floorf(-scroll_offset.y / row_height);
                 const int last_visible = first_visible + (int)ceilf(view_area.height / row_height);
-                for (int i=first_visible; i < __min(last_visible+1,num_spheres); i++) {
+                for (int i=first_visible; i < MIN(last_visible+1,num_spheres); i++) {
                     Sphere *s  = &spheres[i];
                     const char *text = TextFormat("%c Shape %i", s->subtract ? '-' : '+', i+1);
 
