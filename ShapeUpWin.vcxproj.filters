@@ -23,8 +23,5 @@
     <ClInclude Include="src\dark.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\shaders.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

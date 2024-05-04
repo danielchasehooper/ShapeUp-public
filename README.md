@@ -10,4 +10,4 @@ This repo is a santitized copy of the original with commit history removed. I wa
 
 for macOS run `make`  
 for web: run `./webbuild.sh`  
-for windows: PRs welcome  
+for windows: open .sln or make sure msbuild is in your PATH and then run `msbuild`
