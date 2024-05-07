@@ -10,4 +10,3 @@ This repo is a santitized copy of the original with commit history removed. I wa
 
 for macOS run `make`  
 for web: run `./webbuild.sh`  
-for windows: PRs welcome  
